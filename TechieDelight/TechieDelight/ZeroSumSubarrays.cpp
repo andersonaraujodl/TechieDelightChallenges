@@ -20,7 +20,7 @@ Time: From 21h48 to 23h35
 #include <vector>
 #include <algorithm>
 
-void CheckZeroSum(std::vector<int>& vec, std::vector<int>& subset, std::vector<std::vector<int>>& result, int index, bool uniqueNumbers)
+void CheckZeroSum(std::vector<int>& vec, std::vector<int>& subset, std::vector<std::vector<int>>& result, int index)
 {
 	if (vec.size() == 0 || vec.size() == 1)
 	{
@@ -36,12 +36,28 @@ void CheckZeroSum(std::vector<int>& vec, std::vector<int>& subset, std::vector<s
 
 	if (sum == 0 && subset.size() > 0)
 	{
-		if (uniqueNumbers)
+		std::vector<int> temp = subset;
+
+		sort(subset.begin(), subset.end());
+		bool isRepeated = false;
+
+		for (size_t i = 0; i < result.size(); ++i)
 		{
-			std::sort(subset.begin(), subset.end());
+			std::vector<int> tempRes = result[i];
+			sort(result[i].begin(), result[i].end());
+
+			if (result[i] == subset)
+			{
+				result[i] = tempRes;
+				isRepeated = true;
+				break;
+			}
+
+			result[i] = tempRes;
 		}
 
-		if (!(std::find(result.begin(), result.end(), subset) != result.end()))
+		subset = temp;
+		if (!isRepeated)
 		{
 			result.push_back(subset);
 		}
@@ -50,12 +66,27 @@ void CheckZeroSum(std::vector<int>& vec, std::vector<int>& subset, std::vector<s
 	for (size_t i = index; i < vec.size(); ++i)
 	{
 		subset.push_back(vec[i]);
-		CheckZeroSum(vec, subset, result, i + 1, uniqueNumbers);
+		CheckZeroSum(vec, subset, result, i + 1);
 
 		subset.pop_back();
 	}
 
 	return;
+}
+
+void PrintResult(std::vector<std::vector<int>> resultToPrint)
+{
+    std::cout << "There are " << resultToPrint.size() << " results:" << std::endl;
+
+	for (size_t i = 0; i < resultToPrint.size(); ++i)
+	{
+		for (size_t j = 0; j < resultToPrint[i].size(); ++j)
+		{
+			std::cout << resultToPrint[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl << std::endl;
 }
 
 #ifdef ZeroSumSubarrays
@@ -66,26 +97,28 @@ int main()
 	std::vector<std::vector<int>> result;
 
 	int index = 0;
-	CheckZeroSum(vec, subset, result, index, true);
-	std::cout << result.size() << std::endl;
-
-	index = 0;
-	subset.clear();
-	result.clear();
-	CheckZeroSum(vec, subset, result, index, false);
-	std::cout << result.size() << std::endl;
+	CheckZeroSum(vec, subset, result, index);
+	PrintResult(result);
 
 	vec = {-1, 1, 0};
 	index = 0;
 	subset.clear();
 	result.clear();
-	CheckZeroSum(vec, subset, result, index, true);
-	std::cout << result.size() << std::endl;
+	CheckZeroSum(vec, subset, result, index);
+	PrintResult(result);
 
+	vec = { 2, 1, -5 };
 	index = 0;
 	subset.clear();
 	result.clear();
-	CheckZeroSum(vec, subset, result, index, false);
-	std::cout << result.size() << std::endl;
+	CheckZeroSum(vec, subset, result, index);
+	PrintResult(result);
+
+	vec = { 2, 1, -3, 0, -1 };
+	index = 0;
+	subset.clear();
+	result.clear();
+	CheckZeroSum(vec, subset, result, index);
+	PrintResult(result);
 }
 #endif
